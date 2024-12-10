@@ -7,6 +7,15 @@
       </div>
       <button @click="logout">Logout</button>
     </div>
+    <form @submit.prevent="filterEnable" class="form-search">
+      <input
+        type="search"
+        v-model="search"
+        placeholder="Enter text to search"
+      />
+      <button type="submit" class="search">Filter</button>
+    </form>
+
     <form @submit.prevent="addVPS">
       <input v-model="newVPS.name" placeholder="VPS Name" required />
       <input v-model="newVPS.ip_address" placeholder="IP Address 111.222.333.444" @input="formatIp" @blur="validateIp" required />
@@ -16,7 +25,7 @@
     </form>
 
     <ul>
-      <li v-for="vps in vpsList" :key="vps.id">
+      <li v-for="vps in (filterEnabled ? vpsListFiltered : vpsList)" :key="vps.id">
         <div>
           {{ vps.name }} - {{ vps.ip_address }}
           <img :src="iconCopy" class="icon-copy" @click="copyToClipboard(vps.ip_address)" />
@@ -38,8 +47,11 @@ import iconCopy from '../assets/icons/copy.svg';
 export default {
   data() {
     return {
+      filterEnabled: false,
+      search: '',
       user: '',
       vpsList: [],
+      vpsListFiltered: [],
       newVPS: {
         name: '',
         ip_address: '',
@@ -54,6 +66,13 @@ export default {
     supabase.auth.getUser().then((el) => {
       this.user = el.data.user.email;
     });
+  },
+  watch: {
+    search(val) {
+      if (!val) {
+        this.filterEnabled = false;
+      }
+    },
   },
   methods: {
     async fetchVPS() {
@@ -124,6 +143,13 @@ export default {
         console.error('Clipboard API не поддерживается в этом браузере');
       }
     },
+    filterEnable() {
+      this.vpsListFiltered = this.vpsList.filter((vps) => {
+        return vps.name.toLowerCase().includes(this.search.toLowerCase()) ||
+          vps.ip_address.includes(this.search);
+      });
+      this.filterEnabled = true;
+    },
   },
 }
 </script>
@@ -136,9 +162,23 @@ h1 {
 
 form {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   gap: 10px;
   margin-bottom: 20px;
+}
+
+form.form-search {
+  margin-bottom: 40px;
+}
+
+form.form-search button {
+  min-width: 7rem;
+}
+
+form.form-search input {
+  width: 100%;
+  padding: 5px;
+  font-size: 1rem;
 }
 
 ul {
@@ -182,6 +222,11 @@ button.insert {
 button.delete {
   background-color: #fff5f5;
   color: #ff7c7c;
+}
+
+button.search {
+  background-color: #7c89ff;
+  color: #f5f6ff;
 }
 
 </style>
