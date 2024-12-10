@@ -1,24 +1,26 @@
 # vps-manager
+Демо-проект управления личным списком серверов VPS. 
 
-## Project setup
+## Цель
+- Демонстрация подключения Supabase в проекты Vue
+- Демонстрация возможностей Supabase
+
+## Установка
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Локальная разработка (с горячей перезагрузкой)
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Подготовка к production
 ```
 npm run build
 ```
 
-### Lints and fixes files
+### Проверка ошибок
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
