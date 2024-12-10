@@ -25,10 +25,10 @@
     </form>
 
     <ul>
-      <li v-for="vps in (filterEnabled ? vpsListFiltered : vpsList)" :key="vps.id">
+      <li v-for="vps, index in (filterEnabled ? vpsListFiltered : vpsList)" :key="vps.id">
         <div>
           {{ vps.name }} - {{ vps.ip_address }}
-          <img :src="iconCopy" class="icon-copy" @click="copyToClipboard(vps.ip_address)" />
+          <img :src="iconCopy" :class="['icon-copy', copiedIndex === index && copied ? 'copied' : '']" @click="copyToClipboard(vps.ip_address, index)" />
         </div>
         <div>
           <span v-if="vps.hoster_name" class="tag">{{ vps.hoster_name }}</span>
@@ -59,6 +59,8 @@ export default {
         country: 'RU',
       },
       iconCopy: iconCopy,
+      copied: false,
+      copiedIndex: 0,
     };
   },
   created() {
@@ -132,7 +134,9 @@ export default {
         this.error = null;
       }
     },
-    copyToClipboard(text) {
+    copyToClipboard(text, index) {
+      this.copied = true;
+      this.copiedIndex = index;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
           console.log('Текст скопирован в буфер обмена:', text);
@@ -142,6 +146,9 @@ export default {
       } else {
         console.error('Clipboard API не поддерживается в этом браузере');
       }
+      setTimeout(() => {
+        this.copied = false;
+      }, 500);
     },
     filterEnable() {
       this.vpsListFiltered = this.vpsList.filter((vps) => {
@@ -202,6 +209,16 @@ li {
   margin-top: 4px;
   margin-left: 8px;
   filter: invert(70%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+
+.icon-copy.copied {
+  animation: copiedAnimation 0.4s ease-in-out forwards;
+}
+
+@keyframes copiedAnimation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
 }
 
 .tag {
