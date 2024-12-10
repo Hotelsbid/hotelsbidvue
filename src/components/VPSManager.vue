@@ -153,7 +153,9 @@ export default {
     filterEnable() {
       this.vpsListFiltered = this.vpsList.filter((vps) => {
         return vps.name.toLowerCase().includes(this.search.toLowerCase()) ||
-          vps.ip_address.includes(this.search);
+          vps.ip_address?.includes(this.search) ||
+          vps.hoster_name?.toLowerCase().includes(this.search.toLowerCase()) ||
+          vps.country?.toLowerCase().includes(this.search.toLowerCase());
       });
       this.filterEnabled = true;
     },
