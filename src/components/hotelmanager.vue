@@ -76,7 +76,7 @@ export default {
     // Добавляем новое предложение от отеля
     if (!currentHotels.hotels.includes(hotelName)) {
       currentHotels.hotels.push(hotelName);
-
+      console.log(currentHotels)
       const { error: updateError } = await supabase.from('requests').update({ hotels: currentHotels }).eq('id', requestId);
       if (updateError) {
         console.error('Error updating hotels:', updateError);
