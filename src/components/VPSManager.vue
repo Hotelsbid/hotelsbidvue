@@ -15,9 +15,8 @@
       />
       <button type="submit" class="search">Поиск</button>
     </form>
-
-    <form @submit.prevent="addrequest" style="width: 100%;">
-  <h2>Напишите ваш запрос на бронирование</h2>
+<h2>Напишите ваш запрос на бронирование</h2>
+ <form @submit.prevent="addrequest" style="width: 100%;">
   <textarea 
     aria-label="Ваш запрос на бронирование" 
     v-model="newrequest.text" 
