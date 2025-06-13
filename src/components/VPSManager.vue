@@ -88,7 +88,7 @@ export default {
 
   // Метод для добавления подписи на события изменения данных
   subscribeToRequests() {
-    const requestSubscription = supabase
+    supabase
       .from('requests')
       .on('INSERT', payload => {
         console.log('Вставлена новая заявка:', payload.new);
