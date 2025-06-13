@@ -24,11 +24,17 @@
     <ul>
       <li v-for="request, index in (filterEnabled ? requestListFiltered : requestList)" :key="request.id">
         <div>
-          {{ request }}
+        <div>
+          {{ request.text }}
           <img :src="iconCopy" :class="['icon-copy', copiedIndex === index && copied ? 'copied' : '']" @click="copyToClipboard(request.ip_address, index)" />
         </div>
         <div>
           <button @click="deleterequest(request.id)" class="delete">Delete</button>
+        </div>
+        </div>
+        <div>
+          <h2>Предложения от отелей</h2>
+          <div v-for="hotel in request.hotels">{{hotel}}</div>
         </div>
       </li>
     </ul>
