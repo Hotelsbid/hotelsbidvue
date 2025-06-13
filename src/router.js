@@ -2,10 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { supabase } from './assets/js/supabase'; // Импорт supabase
 import LoginForm from './components/LoginForm.vue';
 import VPSManager from './components/VPSManager.vue';
+import hotelmanager from './components/hotelmanager.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
   { path: '/booking', component: VPSManager },
+  { path: '/hotelmanager', component: hotelmanager },
 ];
 
 const router = createRouter({
