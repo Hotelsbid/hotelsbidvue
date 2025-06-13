@@ -5,7 +5,7 @@ import VPSManager from './components/VPSManager.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
-  { path: '/vps', component: VPSManager },
+  { path: '/booking', component: VPSManager },
 ];
 
 const router = createRouter({
