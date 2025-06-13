@@ -24,7 +24,7 @@
     <ul>
       <li v-for="request, index in (filterEnabled ? requestListFiltered : requestList)" :key="request.id">
         <div>
-          {{ request.text }}
+          {{ request }}
           <img :src="iconCopy" :class="['icon-copy', copiedIndex === index && copied ? 'copied' : '']" @click="copyToClipboard(request.ip_address, index)" />
         </div>
         <div>
