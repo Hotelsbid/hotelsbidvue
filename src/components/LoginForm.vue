@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Login / Register</h1>
+    <h1>Login / Register Привет, Зайка!</h1>
     <form @submit.prevent="login">
       <input
         type="email"
