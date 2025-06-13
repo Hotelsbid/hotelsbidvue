@@ -27,8 +27,8 @@ import { supabase } from '../assets/js/supabase';
 export default {
   data() {
     return {
-      email: import.meta.env.VITE_SUPABASE_EMAIL,
-      password: import.meta.env.VITE_SUPABASE_PASSWORD,
+      email: '',
+      password: '',
       errorMessage: '',
     };
   },
