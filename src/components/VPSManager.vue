@@ -75,70 +75,109 @@ export default {
     },
   },
   methods: {
-    async fetchrequest() {
-      const { data, error } = await supabase.from('requests').select('*');
-      if (error) {
-        console.error('Error fetching request:', error);
-      } else {
-        this.requestList = data;
-      }
-    },
-    async addrequest() {
-      const { text } = this.newrequest;
-      const { error } = await supabase
-        .from('requests')
-        .insert([{ text }]);
+  // Ранее существующие методы...
 
-      if (error) {
-        console.error('Error adding request:', error);
-      } else {
-        this.fetchrequest();
-        this.newrequest = { text: ''};
-      }
-    },
-    async deleterequest(id) {
-      if (!confirm('Вы уверены, что хотите удалить эту заявку?')) {
-        return;
-      }
-
-      const { error } = await supabase.from('requests').delete().eq('id', id);
-      if (error) {
-        console.error('Error deleting request:', error);
-      } else {
-        this.requestList = this.requestList.filter((request) => request.id !== id);
-      }
-    },
-    async logout() {
-      console.log('Logging out');
-      await supabase.auth.signOut();
-      this.$router.push('/');
-    },
-    copyToClipboard(text, index) {
-      this.copied = true;
-      this.copiedIndex = index;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-          console.log('Текст скопирован в буфер обмена:', text);
-        }).catch(err => {
-          console.error('Ошибка при копировании текста:', err);
-        });
-      } else {
-        console.error('Clipboard API не поддерживается в этом браузере');
-      }
-      setTimeout(() => {
-        this.copied = false;
-      }, 500);
-    },
-    filterEnable() {
-      this.requestListFiltered = this.requestList.filter((request) => {
-        return request.name.toLowerCase().includes(this.search.toLowerCase()) ||
-          request.ip_address?.includes(this.search) ||
-          request.hoster_name?.toLowerCase().includes(this.search.toLowerCase()) ||
-          request.country?.toLowerCase().includes(this.search.toLowerCase());
-      });
-      this.filterEnabled = true;
-    },
+  async fetchrequest() {
+    const { data, error } = await supabase.from('requests').select('*');
+    if (error) {
+      console.error('Error fetching request:', error);
+    } else {
+      this.requestList = data;
+    }
   },
+
+  // Метод для добавления подписи на события изменения данных
+  subscribeToRequests() {
+    const requestSubscription = supabase
+      .from('requests')
+      .on('INSERT', payload => {
+        console.log('Вставлена новая заявка:', payload.new);
+        this.requestList.push(payload.new);
+      })
+      .on('UPDATE', payload => {
+        console.log('Обновлена заявка:', payload.new);
+        const index = this.requestList.findIndex((request) => request.id === payload.new.id);
+        if (index !== -1) {
+          this.$set(this.requestList, index, payload.new);
+        }
+      })
+      .on('DELETE', payload => {
+        console.log('Удалена заявка:', payload.old);
+        this.requestList = this.requestList.filter((request) => request.id !== payload.old.id);
+      })
+      .subscribe();
+
+    this.requestSubscription = requestSubscription;
+  },
+
+  async addrequest() {
+    const { text } = this.newrequest;
+    const { error } = await supabase.from('requests').insert([{ text }]);
+    if (error) {
+      console.error('Error adding request:', error);
+    } else {
+      this.newrequest = { text: '' };
+    }
+  },
+
+  async deleterequest(id) {
+    if (!confirm('Вы уверены, что хотите удалить эту заявку?')) {
+      return;
+    }
+
+    const { error } = await supabase.from('requests').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting request:', error);
+    } else {
+      this.requestList = this.requestList.filter((request) => request.id !== id);
+    }
+  },
+
+  async logout() {
+    console.log('Logging out');
+    await supabase.auth.signOut();
+    this.$router.push('/');
+  },
+
+  copyToClipboard(text, index) {
+    this.copied = true;
+    this.copiedIndex = index;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        console.log('Текст скопирован в буфер обмена:', text);
+      }).catch(err => {
+        console.error('Ошибка при копировании текста:', err);
+      });
+    } else {
+      console.error('Clipboard API не поддерживается в этом браузере');
+    }
+    setTimeout(() => {
+      this.copied = false;
+    }, 500);
+  },
+
+  filterEnable() {
+    this.requestListFiltered = this.requestList.filter((request) => {
+      return request.name.toLowerCase().includes(this.search.toLowerCase()) 
+          || request.ip_address?.includes(this.search) 
+          || request.hoster_name?.toLowerCase().includes(this.search.toLowerCase()) 
+          || request.country?.toLowerCase().includes(this.search.toLowerCase());
+    });
+    this.filterEnabled = true;
+  },
+},
+
+mounted() {
+  this.fetchrequest();
+  this.subscribeToRequests();  // Подписываемся на события при монтировании компонента
+},
+
+beforeDestroy() {
+  if (this.requestSubscription) {
+    supabase.removeSubscription(this.requestSubscription); // Отписываемся от событий перед уничтожением компонента
+  }
+}
+
 }
 </script>
 
