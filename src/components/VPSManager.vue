@@ -76,22 +76,34 @@ export default {
   },
   methods: {
     async fetchrequest() {
-      const { data, error } = await supabase.from('requests').select('*');
-      if (error) {
-        console.error('Error fetching request:', error);
-      } else {
-        this.requestList = data;
-      }
-      const channels = supabase.channel('custom-all-channel')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'requests' },
+    const { data, error } = await supabase.from('requests').select('*');
+    if (error) {
+      console.error('Error fetching request:', error);
+    } else {
+      this.requestList = data;
+    }
+
+    const channels = supabase.channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' },
         (payload) => {
-          console.log('Change received!', payload)
+          console.log('Change received!', payload);
+          const changeType = payload.eventType;
+          const updatedRequest = payload.new;
+
+          if (changeType === 'INSERT') {
+            this.requestList.push(updatedRequest);
+          } else if (changeType === 'UPDATE') {
+            const index = this.requestList.findIndex(request => request.id === updatedRequest.id);
+            if (index !== -1) {
+              this.$set(this.requestList, index, updatedRequest);
+            }
+          } else if (changeType === 'DELETE') {
+            this.requestList = this.requestList.filter(request => request.id !== payload.old.id);
+          }
         }
       )
-      .subscribe()
-    },
+      .subscribe();
+  },
     async addrequest() {
       const { text } = this.newrequest;
       const { error } = await supabase
