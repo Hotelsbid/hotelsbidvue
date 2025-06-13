@@ -95,7 +95,7 @@ export default {
           } else if (changeType === 'UPDATE') {
             const index = this.requestList.findIndex(request => request.id === updatedRequest.id);
             if (index !== -1) {
-              this.$set(this.requestList, index, updatedRequest);
+              this.requestList[index] = updatedRequest;
             }
           } else if (changeType === 'DELETE') {
             this.requestList = this.requestList.filter(request => request.id !== payload.old.id);
