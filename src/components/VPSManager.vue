@@ -2,10 +2,10 @@
   <div>
     <div style="display: flex; width: 100%; margin-bottom: 40px;align-items: center;justify-content: space-between;">
       <div style="text-align: left;">
-        <h1 style="margin-bottom: 0;">VPS Manager</h1>
+        <h1 style="margin-bottom: 0;">Hotelsbid - групповое бронирование отелей</h1>
         <span style="margin-bottom: 0;"class="tag">Пользователь: {{ user }}</span>
       </div>
-      <button @click="logout">Logout</button>
+      <button @click="logout">Выход</button>
     </div>
     <form @submit.prevent="filterEnable" class="form-search">
       <input
@@ -13,27 +13,22 @@
         v-model="search"
         placeholder="Enter text to search"
       />
-      <button type="submit" class="search">Filter</button>
+      <button type="submit" class="search">Поиск</button>
     </form>
 
-    <form @submit.prevent="addVPS">
-      <input v-model="newVPS.name" placeholder="VPS Name" required />
-      <input v-model="newVPS.ip_address" placeholder="IP Address 111.222.333.444" @input="formatIp" @blur="validateIp" required />
-      <input v-model="newVPS.hoster_name" placeholder="Hoster name" required />
-      <input v-model="newVPS.country" placeholder="Country" required />
-      <button type="submit" class="insert">Add VPS</button>
+    <form @submit.prevent="addrequest">
+      <textarea aria-label="Ваш запрос на бронирование"></textarea>
+      <button type="submit" class="insert">Отправить запрос</button>
     </form>
 
     <ul>
-      <li v-for="vps, index in (filterEnabled ? vpsListFiltered : vpsList)" :key="vps.id">
+      <li v-for="request, index in (filterEnabled ? requestListFiltered : requestList)" :key="request.id">
         <div>
-          {{ vps.name }} - {{ vps.ip_address }}
-          <img :src="iconCopy" :class="['icon-copy', copiedIndex === index && copied ? 'copied' : '']" @click="copyToClipboard(vps.ip_address, index)" />
+          {{ request.text }}
+          <img :src="iconCopy" :class="['icon-copy', copiedIndex === index && copied ? 'copied' : '']" @click="copyToClipboard(request.ip_address, index)" />
         </div>
         <div>
-          <span v-if="vps.hoster_name" class="tag">{{ vps.hoster_name }}</span>
-          <span v-if="vps.country" class="tag">{{ vps.country }}</span>
-          <button @click="deleteVPS(vps.id)" class="delete">Delete</button>
+          <button @click="deleterequest(request.id)" class="delete">Delete</button>
         </div>
       </li>
     </ul>
@@ -50,13 +45,10 @@ export default {
       filterEnabled: false,
       search: '',
       user: '',
-      vpsList: [],
-      vpsListFiltered: [],
-      newVPS: {
-        name: '',
-        ip_address: '',
-        hoster_name: '',
-        country: 'RU',
+      requestList: [],
+      requestListFiltered: [],
+      newrequest: {
+        text: ''
       },
       iconCopy: iconCopy,
       copied: false,
@@ -64,7 +56,7 @@ export default {
     };
   },
   created() {
-    this.fetchVPS();
+    this.fetchrequest();
     supabase.auth.getUser().then((el) => {
       this.user = el.data.user.email;
     });
@@ -77,37 +69,37 @@ export default {
     },
   },
   methods: {
-    async fetchVPS() {
-      const { data, error } = await supabase.from('vps').select('*');
+    async fetchrequest() {
+      const { data, error } = await supabase.from('request').select('*');
       if (error) {
-        console.error('Error fetching VPS:', error);
+        console.error('Error fetching request:', error);
       } else {
-        this.vpsList = data;
+        this.requestList = data;
       }
     },
-    async addVPS() {
-      const { name, ip_address, hoster_name, country } = this.newVPS;
+    async addrequest() {
+      const { name, ip_address, hoster_name, country } = this.newrequest;
       const { error } = await supabase
-        .from('vps')
+        .from('request')
         .insert([{ name, ip_address, hoster_name, country }]);
 
       if (error) {
-        console.error('Error adding VPS:', error);
+        console.error('Error adding request:', error);
       } else {
-        this.fetchVPS();
-        this.newVPS = { name: '', ip_address: '', hoster_name: '', country: 'RU' };
+        this.fetchrequest();
+        this.newrequest = { name: '', ip_address: '', hoster_name: '', country: 'RU' };
       }
     },
-    async deleteVPS(id) {
-      if (!confirm('Вы уверены, что хотите удалить этот VPS?')) {
+    async deleterequest(id) {
+      if (!confirm('Вы уверены, что хотите удалить эту заявку?')) {
         return;
       }
 
-      const { error } = await supabase.from('vps').delete().eq('id', id);
+      const { error } = await supabase.from('request').delete().eq('id', id);
       if (error) {
-        console.error('Error deleting VPS:', error);
+        console.error('Error deleting request:', error);
       } else {
-        this.vpsList = this.vpsList.filter((vps) => vps.id !== id);
+        this.requestList = this.requestList.filter((request) => request.id !== id);
       }
     },
     async logout() {
@@ -116,19 +108,19 @@ export default {
       this.$router.push('/');
     },
     formatIp() {
-      const segments = this.newVPS.ip_address
+      const segments = this.newrequest.ip_address
         .replace(/[^0-9.]/g, '') // Удаляет лишние символы
         .split('.')
         .map((segment) => segment.substring(0, 3)); // Ограничивает длину сегмента до 3 символов
 
-      this.newVPS.ip_address = segments.slice(0, 4).join('.'); // Оставляет только первые 4 сегмента
+      this.newrequest.ip_address = segments.slice(0, 4).join('.'); // Оставляет только первые 4 сегмента
     },
     // Проверяет корректность IP-адреса
     validateIp() {
       const ipRegex =
         /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
 
-      if (!ipRegex.test(this.newVPS.ip_address)) {
+      if (!ipRegex.test(this.newrequest.ip_address)) {
         this.error = 'Некорректный IP-адрес';
       } else {
         this.error = null;
@@ -151,11 +143,11 @@ export default {
       }, 500);
     },
     filterEnable() {
-      this.vpsListFiltered = this.vpsList.filter((vps) => {
-        return vps.name.toLowerCase().includes(this.search.toLowerCase()) ||
-          vps.ip_address?.includes(this.search) ||
-          vps.hoster_name?.toLowerCase().includes(this.search.toLowerCase()) ||
-          vps.country?.toLowerCase().includes(this.search.toLowerCase());
+      this.requestListFiltered = this.requestList.filter((request) => {
+        return request.name.toLowerCase().includes(this.search.toLowerCase()) ||
+          request.ip_address?.includes(this.search) ||
+          request.hoster_name?.toLowerCase().includes(this.search.toLowerCase()) ||
+          request.country?.toLowerCase().includes(this.search.toLowerCase());
       });
       this.filterEnabled = true;
     },
