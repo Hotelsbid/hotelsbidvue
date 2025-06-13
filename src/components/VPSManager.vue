@@ -34,7 +34,7 @@
         </div>
         <div>
           <h2>Предложения от отелей</h2>
-          <div v-for="hotel in request.hotels.hotels">{{hotel}}</div>
+          <div v-for="hotel in request.hotels">{{hotel}}</div>
         </div>
       </li>
     </ul>
