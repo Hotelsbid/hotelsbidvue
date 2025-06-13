@@ -17,7 +17,7 @@
     </form>
 
     <form @submit.prevent="addrequest">
-      <textarea aria-label="Ваш запрос на бронирование"></textarea>
+      <textarea aria-label="Ваш запрос на бронирование" v-model="newrequest.text"></textarea>
       <button type="submit" class="insert">Отправить запрос</button>
     </form>
 
