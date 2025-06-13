@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     async fetchrequest() {
-      const { data, error } = await supabase.from('request').select('*');
+      const { data, error } = await supabase.from('requests').select('*');
       if (error) {
         console.error('Error fetching request:', error);
       } else {
@@ -78,16 +78,16 @@ export default {
       }
     },
     async addrequest() {
-      const { name, ip_address, hoster_name, country } = this.newrequest;
+      const { text } = this.newrequest;
       const { error } = await supabase
-        .from('request')
-        .insert([{ name, ip_address, hoster_name, country }]);
+        .from('requests')
+        .insert([{ text }]);
 
       if (error) {
         console.error('Error adding request:', error);
       } else {
         this.fetchrequest();
-        this.newrequest = { name: '', ip_address: '', hoster_name: '', country: 'RU' };
+        this.newrequest = { text: ''};
       }
     },
     async deleterequest(id) {
@@ -95,7 +95,7 @@ export default {
         return;
       }
 
-      const { error } = await supabase.from('request').delete().eq('id', id);
+      const { error } = await supabase.from('requests').delete().eq('id', id);
       if (error) {
         console.error('Error deleting request:', error);
       } else {
@@ -106,25 +106,6 @@ export default {
       console.log('Logging out');
       await supabase.auth.signOut();
       this.$router.push('/');
-    },
-    formatIp() {
-      const segments = this.newrequest.ip_address
-        .replace(/[^0-9.]/g, '') // Удаляет лишние символы
-        .split('.')
-        .map((segment) => segment.substring(0, 3)); // Ограничивает длину сегмента до 3 символов
-
-      this.newrequest.ip_address = segments.slice(0, 4).join('.'); // Оставляет только первые 4 сегмента
-    },
-    // Проверяет корректность IP-адреса
-    validateIp() {
-      const ipRegex =
-        /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
-
-      if (!ipRegex.test(this.newrequest.ip_address)) {
-        this.error = 'Некорректный IP-адрес';
-      } else {
-        this.error = null;
-      }
     },
     copyToClipboard(text, index) {
       this.copied = true;
