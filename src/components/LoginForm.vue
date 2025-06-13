@@ -42,7 +42,7 @@ export default {
       if (error) {
         this.errorMessage = error.message;
       } else {
-        this.$router.push('/');
+        this.$router.push('/vps');
       }
     },
     async register() {
