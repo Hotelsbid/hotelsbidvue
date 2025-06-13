@@ -18,7 +18,7 @@ const router = createRouter({
 // Проверка аутентификации
 router.beforeEach(async (to, from, next) => {
   const { data: { user }, error } = await supabase.auth.getUser();
-  if (to.path === '/vps' && !user) {
+  if (to.path === '/booking' && !user) {
     next('/');
   } else {
     next();
