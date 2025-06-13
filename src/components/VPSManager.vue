@@ -15,15 +15,11 @@
       />
       <button type="submit" class="search">Поиск</button>
     </form>
-<h2>Напишите ваш запрос на бронирование</h2>
- <form @submit.prevent="addrequest" style="width: 100%;">
-  <textarea 
-    aria-label="Ваш запрос на бронирование" 
-    v-model="newrequest.text" 
-    style="width: 100%; height: 300px;">
-  </textarea>
-  <button type="submit" class="insert">Отправить запрос</button>
-</form>
+
+    <form @submit.prevent="addrequest">
+      <textarea aria-label="Ваш запрос на бронирование" v-model="newrequest.text"></textarea>
+      <button type="submit" class="insert">Отправить запрос</button>
+    </form>
 
     <ul>
       <li v-for="request, index in (filterEnabled ? requestListFiltered : requestList)" :key="request.id">
